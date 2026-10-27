@@ -1,8 +1,17 @@
 # differential-proof
 
-AI coding agents attach a video or screenshots to their pull request as proof that the change works. But the proof is made by the same agent that wrote the code, so it can show something that already worked before the PR.
+AI coding agents attach a video or screenshots to their pull request as proof that the change works, and teams merge on that proof instead of reading the diff. But the proof is made by the same agent that wrote the code, so it can show something that already worked before the PR. `diffproof` replays the proof on the base branch and on the PR, from the same starting state, and a required GitHub check passes only if the proof **fails on base and passes on the PR**.
 
-`diffproof` replays the proof on the base branch and on the PR, from the same starting state. The check passes only if the proof **fails on base and passes on the PR**.
+![demo](demo.gif) <!-- TODO: 10–15s capture of PR #2 (blocked) next to PR #4 (green) -->
+
+See it live on the demo repo:
+
+- [PR #2 — fake fix, **blocked**](https://github.com/Tactacion/diffproof-demo/pull/2): the agent's proof also passes on `main` ("Vacuous proof"), and its before/after GIFs look identical.
+- [PR #4 — real agent fix, **both checks green**](https://github.com/Tactacion/diffproof-demo/pull/4): a Replicas agent fixed [issue #3](https://github.com/Tactacion/diffproof-demo/issues/3) and wrote its own proof; the check replayed it (PROVEN), and an independent verifier's proof, written from the issue alone, came back PROVEN too.
+
+## Use it as a Replicas automation
+
+The checks above run as [Replicas](https://replicas.dev) automations triggered on `pull_request.opened` / `.synchronize`: the agent finds the proof in the PR, runs `diffproof`, and `diffproof` reports the GitHub check itself — the agent never decides the verdict. The exact prompts for both automations (Differential Proof, and the M5 Independent Proof verifier) are in [`docs/automation-prompt.md`](docs/automation-prompt.md); a warm hook that preinstalls the checker is in [`docs/PLAN.md`](docs/PLAN.md) (M1).
 
 ```
 === fix-invoice-export + invoices-export.json ===
