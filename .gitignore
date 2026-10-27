@@ -1,0 +1,5 @@
+node_modules/
+.diffproof/
+.demo-repo/
+.env
+.claude/settings.local.json

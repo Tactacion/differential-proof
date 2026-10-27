@@ -1,0 +1,21 @@
+{
+  "name": "differential-proof",
+  "version": "0.1.0",
+  "description": "Replay an AI agent's browser proof on the base branch and on the PR; pass only if it fails on base and passes on the PR.",
+  "type": "module",
+  "bin": {
+    "diffproof": "bin/diffproof.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "demo:repo": "bash demo/make-demo-repo.sh .demo-repo",
+    "demo": "bash demo/run-demo.sh"
+  },
+  "dependencies": {
+    "playwright": "^1.64.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Invoices export shows a ready file",
+  "claim": "Clicking Export on the Invoices page now produces invoices.csv",
+  "kind": "bugfix",
+  "start_path": "/invoices",
+  "steps": [
+    { "action": "click", "target": { "role": "button", "name": "Export" } },
+    { "action": "expect_text", "target": { "role": "status" }, "text": "Export ready: invoices.csv" }
+  ]
+}

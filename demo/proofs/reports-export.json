@@ -1,0 +1,10 @@
+{
+  "name": "Export button works",
+  "claim": "Clicking Export produces a ready file (the proof a careless agent would record)",
+  "kind": "bugfix",
+  "start_path": "/reports",
+  "steps": [
+    { "action": "click", "target": { "role": "button", "name": "Export" } },
+    { "action": "expect_text", "target": { "role": "status" }, "text": "Export ready" }
+  ]
+}
