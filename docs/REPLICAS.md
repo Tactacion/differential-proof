@@ -45,7 +45,7 @@ Checked against their public docs on 2026-10-27. Anything marked **verify** is n
 - `replicas computer browser-state [path] [--full]`: accessibility tree with `[ref=N]` handles. Refs reset when the page navigates, so they can't be replayed elsewhere.
 - `replicas computer browser-click --ref <n>`, `browser-fill --ref <n> <value>`, `browser-batch '<json>'` (up to 100 actions: click, fill, drag, key, type, scroll, wait), `browser-wait <text>`.
 - `replicas computer record start <path>` / `record stop`: an MP4 that speeds up idle time and zooms on clicks.
-- `replicas media upload before.png after.png --name "Before" --name "After"`; `replicas media gif <recording> --start 2 --duration 6` makes a looping GIF under GitHub's 5 MiB limit. Confirmed 2026-10-27: `media upload` accepts `.webm` directly (diffproof-m1 workspace). **verify**: whether `media gif` accepts `.webm` or needs `.mp4` first.
+- `replicas media upload before.png after.png --name "Before" --name "After"`; `replicas media gif <recording> --start 2 --duration 6` makes a looping GIF under GitHub's 5 MiB limit. Confirmed 2026-10-27: `media upload` accepts `.webm` directly (diffproof-m1 workspace), and `media gif` converts `.webm` directly too — no `.mp4` step. `media gif` has no `--name` flag; the name goes on the `media upload` of the resulting `.gif` (seen in the PR #2 automation run).
 - `replicas preview create <port>` exposes a port on a preview URL.
 - `replicas exec <id> -- <command>` from outside has a 50-second max timeout, too short for a full run. Run diffproof from inside the workspace (agent or terminal) instead.
 
