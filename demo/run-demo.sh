@@ -16,7 +16,7 @@ run() {
   echo "=== $head + $(basename "$proof")  (expect $expect) ==="
   node "$HERE/bin/diffproof.js" run --repo "$REPO" --base main --head "$head" \
     --proof "$HERE/demo/proofs/$proof" --start "node server.js" --port 4321 \
-    --runs 2 --out "$HERE/.diffproof" "$@" | sed -n '1,3p'
+    --runs 2 --out "$HERE/.diffproof" "$@" | sed -n '1,3p;/Diff coverage/p'
 }
 
 run PROVEN     fix-invoice-export invoices-export.json "$@"

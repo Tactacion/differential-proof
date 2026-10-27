@@ -89,3 +89,7 @@ export function changedFiles(repo, baseSha, headSha) {
   const out = git(['diff', '--name-only', `${baseSha}...${headSha}`], repo);
   return out ? out.split('\n') : [];
 }
+
+export function diffFullText(repo, baseSha, headSha) {
+  return git(['diff', '--unified=0', `${baseSha}...${headSha}`], repo);
+}

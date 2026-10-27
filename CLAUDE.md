@@ -6,9 +6,9 @@ The goal is a working demo on Replicas (a cloud coding-agent platform): a requir
 
 ## Status
 
-- Done and tested: proof format + validator (`src/proof.js`), verdict logic (`src/verdict.js`, 23 unit tests), CLI that checks out base and head as git worktrees, starts the app, replays the proof in Playwright and decides (`bin/diffproof.js`), toy demo repo with three scenarios.
-- The demo was run end to end in real Chromium: real fix → PROVEN, fake fix with its own proof → VACUOUS, fake fix with the honest proof → HEAD_FAILS.
-- Not yet done: running inside Replicas, the automation + required check, coverage signal, independent verifier. See `docs/PLAN.md` for the order.
+- Done and tested: proof format + validator (`src/proof.js`), verdict logic (`src/verdict.js`), diff coverage signal (`src/coverage.js`, `touchedChangedCode`), 30 unit tests, CLI that checks out base and head as git worktrees, starts the app, replays the proof in Playwright and decides (`bin/diffproof.js`), toy demo repo with three scenarios.
+- M0–M4 done. M1: the three verdicts reproduced inside a Replicas workspace. M2: the "Differential Proof" automation + required check on the `Tactacion/diffproof-demo` repo blocks the vacuous PR (#2) and passes the honest one (#1). M3: a real Replicas agent fixed issue #3 and its PR (#4) came back PROVEN. M4: the demo shows `touchedChangedCode` yes/no/yes.
+- Not yet done: M5 independent verifier, M6 confidence signal. See `docs/PLAN.md`.
 
 ## Commands
 

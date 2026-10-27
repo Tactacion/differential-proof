@@ -91,18 +91,21 @@ fs.writeFileSync(f, s.replace(before, after).replace("// BUG: exportInvoices is 
 '
 git commit -q -am "Fix Invoices export"
 
-# A plausible-looking "fix" that changes the wrong page. Its recording would
-# show Export working, because Reports export already worked on main.
+# A plausible-looking "fix" that does not work: it defines exportInvoices but
+# leans on window.invoiceExporter, which does not exist, so the click still
+# throws. An agent proof recorded on the Reports page would show Export
+# working, because Reports export already worked on main — and never runs a
+# line this diff changed.
 git checkout -q main
 git checkout -q -b fake-fix
 node -e '
 const fs = require("fs");
 const f = "server.js";
-const before = "document.getElementById(\x27status\x27).textContent = \x27Export ready: reports.csv\x27;";
-const after = "console.log(\x27export clicked\x27);\n  document.getElementById(\x27status\x27).textContent = \x27Export ready: reports.csv\x27;";
+const before = "const INVOICES_SCRIPT = `document.getElementById(\x27export\x27).onclick = () => exportInvoices();`;";
+const after = "const INVOICES_SCRIPT = `function exportInvoices() {\n  window.invoiceExporter.generate(\x27invoices.csv\x27);\n  document.getElementById(\x27status\x27).textContent = \x27Export ready: invoices.csv\x27;\n}\ndocument.getElementById(\x27export\x27).onclick = () => exportInvoices();`;";
 const s = fs.readFileSync(f, "utf8");
 if (!s.includes(before)) { console.error("marker not found in server.js"); process.exit(1); }
-fs.writeFileSync(f, s.replace(before, after));
+fs.writeFileSync(f, s.replace(before, after).replace("// BUG: exportInvoices is never defined, so the button throws and nothing shows.\n", ""));
 '
 git commit -q -am "Fix export button"
 

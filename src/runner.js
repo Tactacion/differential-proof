@@ -16,6 +16,7 @@ const DEFAULTS = {
   timeoutMs: 10_000,
   allowExternal: false,
   videoDir: null,
+  collectCoverage: false,
 };
 
 export function seededRandomScript(seed) {
@@ -132,6 +133,7 @@ export async function runProof(browser, proof, opts) {
   const startedAt = Date.now();
   const res = { ok: false, errorKind: null, error: null, steps: [], pageErrors: [], video: null, durationMs: 0 };
 
+  let coverageOn = false;
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
     locale: 'en-US',
@@ -152,6 +154,14 @@ export async function runProof(browser, proof, opts) {
     page = await context.newPage();
     await page.clock.install({ time: new Date(o.fixedTime) });
     page.on('pageerror', (e) => res.pageErrors.push(firstLine(e.message)));
+    if (o.collectCoverage) {
+      // Chromium-only; a failure here degrades the coverage signal to
+      // "unknown" downstream, it never fails the run.
+      try {
+        await page.coverage.startJSCoverage({ reportAnonymousScripts: true });
+        coverageOn = true;
+      } catch {}
+    }
 
     try {
       await page.goto(new URL(proof.start_path ?? '/', baseUrl).toString(), { timeout: o.timeoutMs });
@@ -190,6 +200,9 @@ export async function runProof(browser, proof, opts) {
     res.error = `browser error: ${firstLine(e.message)}`;
     return res;
   } finally {
+    if (coverageOn) {
+      res.coverage = await page.coverage.stopJSCoverage().catch(() => null);
+    }
     const video = page?.video?.() ?? null;
     await context.close().catch(() => {});
     if (video) res.video = await video.path().catch(() => null);

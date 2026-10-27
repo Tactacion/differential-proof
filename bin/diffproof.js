@@ -8,7 +8,8 @@ import path from 'node:path';
 
 import { validateProof, normalizeProof } from '../src/proof.js';
 import { decide, formatSummary } from '../src/verdict.js';
-import { runShell, startApp, waitForHttp, stopApp, resolveCommit, addWorktree, removeWorktree, changedFiles } from '../src/proc.js';
+import { runShell, startApp, waitForHttp, stopApp, resolveCommit, addWorktree, removeWorktree, changedFiles, diffFullText } from '../src/proc.js';
+import { executedTexts, touchedChangedCode } from '../src/coverage.js';
 
 const HELP = `diffproof — does the agent's proof fail on base and pass on the PR?
 
@@ -211,7 +212,10 @@ async function cmdRun(argv) {
           }
         }
         const videoDir = a.video && i === 0 ? path.join(outDir, `${s.name}-video`) : null;
-        const res = await runProof(browser, proof, { baseUrl, seed, timeoutMs, videoDir, allowExternal: a['allow-external'] });
+        // Coverage is collected on the PR side's first run only: the question
+        // is whether the proof exercises the code this PR changed.
+        const collectCoverage = s.name === 'head' && i === 0;
+        const res = await runProof(browser, proof, { baseUrl, seed, timeoutMs, videoDir, collectCoverage, allowExternal: a['allow-external'] });
         if (res.video) {
           const dest = path.join(outDir, `${s.name}.webm`);
           try {
@@ -243,7 +247,21 @@ async function cmdRun(argv) {
   try {
     changed = changedFiles(repo, base.sha, head.sha);
   } catch {}
-  const summary = formatSummary(decision, meta);
+  let touched = 'unknown';
+  try {
+    const entries = head.runs.find((r) => r.coverage)?.coverage ?? null;
+    touched = touchedChangedCode({
+      texts: entries ? executedTexts(entries) : null,
+      diff: diffFullText(repo, base.sha, head.sha),
+    });
+  } catch {}
+  for (const s of sides) for (const r of s.runs) delete r.coverage;
+  const coverageNote = {
+    yes: 'The proof executed code this PR changed.',
+    no: 'The proof never executed a line this PR changed (expected for server-only changes; otherwise the proof may not test this PR).',
+    unknown: 'Whether the proof executed the changed code could not be determined.',
+  }[touched];
+  const summary = `${formatSummary(decision, meta)}\n- Diff coverage: ${coverageNote} (touchedChangedCode: ${touched})`;
   const result = {
     verdict: decision.verdict,
     strength: decision.strength,
@@ -254,6 +272,7 @@ async function cmdRun(argv) {
     base: { ref: base.ref, sha: base.sha, summary: decision.sides.base, runs: base.runs },
     head: { ref: head.ref, sha: head.sha, summary: decision.sides.head, runs: head.runs },
     changedFiles: changed,
+    touchedChangedCode: touched,
     settings: { runs, seed, port, timeoutMs },
     outDir,
   };
