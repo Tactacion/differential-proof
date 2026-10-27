@@ -36,7 +36,7 @@ Checked against their public docs on 2026-10-27. Anything marked **verify** is n
 - Docker is installed but starts on demand: add `sudo service docker start && until docker info >/dev/null 2>&1; do sleep 0.2; done` to a start hook. (docs.replicas.dev/features/workspaces/overview)
 - Long-running services: `replicas service start web "<cmd>"` survives the turn ending and sleep/wake. (CLI docs)
 - **verify**: there is no documented way to start a workspace on a specific branch or commit through the API. Workaround used here: one workspace, two git worktrees.
-- **verify**: whether `npx playwright install --with-deps chromium` works in a warm hook (needs network and sudo apt). Every workspace already has a Linux desktop with Chrome; `--executable-path` could point at that Chrome instead.
+- Confirmed 2026-10-27: `npx playwright install --with-deps chromium ffmpeg` works in a warm hook (ran via `replicas env warm-hooks save-test` on the diffproof-demo environment, exit 0). The fallback of pointing `--executable-path` at the workspace desktop's Chrome was not needed.
 
 ## Browser and proof tools inside a workspace
 
