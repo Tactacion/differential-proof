@@ -36,6 +36,8 @@ Checked against their public docs on 2026-10-27. Anything marked **verify** is n
 - Docker is installed but starts on demand: add `sudo service docker start && until docker info >/dev/null 2>&1; do sleep 0.2; done` to a start hook. (docs.replicas.dev/features/workspaces/overview)
 - Long-running services: `replicas service start web "<cmd>"` survives the turn ending and sleep/wake. (CLI docs)
 - **verify**: there is no documented way to start a workspace on a specific branch or commit through the API. Workaround used here: one workspace, two git worktrees.
+- Workspace clones only have `main` checked out; `git fetch origin <branch>` updates `FETCH_HEAD` and `origin/<branch>` but creates no local branch, so bare branch names don't resolve for diffproof. Use `origin/<branch>` refs (as the automation prompt does) or create local branches first. (hit in the diffproof-m1 run, 2026-10-27)
+- A workspace created right after saving a warm hook can be claimed from a pre-hook snapshot and miss the hook's work (happened with diffproof-m1). Give the pool time to re-warm, or have the agent fall back to installing by hand.
 - Confirmed 2026-10-27: `npx playwright install --with-deps chromium ffmpeg` works in a warm hook (ran via `replicas env warm-hooks save-test` on the diffproof-demo environment, exit 0). The fallback of pointing `--executable-path` at the workspace desktop's Chrome was not needed.
 
 ## Browser and proof tools inside a workspace
@@ -43,7 +45,7 @@ Checked against their public docs on 2026-10-27. Anything marked **verify** is n
 - `replicas computer browser-state [path] [--full]`: accessibility tree with `[ref=N]` handles. Refs reset when the page navigates, so they can't be replayed elsewhere.
 - `replicas computer browser-click --ref <n>`, `browser-fill --ref <n> <value>`, `browser-batch '<json>'` (up to 100 actions: click, fill, drag, key, type, scroll, wait), `browser-wait <text>`.
 - `replicas computer record start <path>` / `record stop`: an MP4 that speeds up idle time and zooms on clicks.
-- `replicas media upload before.png after.png --name "Before" --name "After"`; `replicas media gif <recording> --start 2 --duration 6` makes a looping GIF under GitHub's 5 MiB limit. **verify**: whether `media gif` accepts `.webm` (Playwright's format) or needs `.mp4` first.
+- `replicas media upload before.png after.png --name "Before" --name "After"`; `replicas media gif <recording> --start 2 --duration 6` makes a looping GIF under GitHub's 5 MiB limit. Confirmed 2026-10-27: `media upload` accepts `.webm` directly (diffproof-m1 workspace). **verify**: whether `media gif` accepts `.webm` or needs `.mp4` first.
 - `replicas preview create <port>` exposes a port on a preview URL.
 - `replicas exec <id> -- <command>` from outside has a 50-second max timeout, too short for a full run. Run diffproof from inside the workspace (agent or terminal) instead.
 
