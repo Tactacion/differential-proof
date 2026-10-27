@@ -52,11 +52,11 @@ Checked against their public docs on 2026-10-27. Anything marked **verify** is n
 ## Automations and required checks
 
 - Create: `replicas automation create "<name>" --prompt "<...>" --environment <env> --trigger-github pull_request.opened --github-checks "Differential Proof" --size small --lifecycle archive_when_done`. (CLI docs)
-- **verify**: the exact event name for "PR updated (new commits)" in `--trigger-github` (likely `pull_request.synchronize`); run `replicas automation create --help`.
+- Confirmed 2026-10-27: `--trigger-github pull_request.synchronize` is accepted for "PR updated (new commits)" (used on the Differential Proof automation).
 - The check is created in progress as soon as the PR event lands, and only the agent's reported verdict completes it. Repeat events on the same commit reuse the check. A run that dies is reported as a failure. So it's safe to mark it required in a GitHub ruleset. (docs.replicas.dev/features/automations)
 - The agent is told which check runs it owns and a token. It reports with: `replicas automation check <checkRunId> --token <token> --conclusion success --title "..." --summary "..."`.
 - **verify**: accepted `--conclusion` values besides `success` (we use `success` and `failure`).
-- Read-only: setting `config.capabilities.read_only_contents: true` (API) gives the automation a token that can comment and report checks but can't push. Good for a checker. **verify**: CLI flag for it.
+- Read-only: setting `config.capabilities.read_only_contents: true` (API) gives the automation a token that can comment and report checks but can't push. Good for a checker. Confirmed 2026-10-27: no CLI flag for it; `PATCH /v1/automations/<id>` with `{"config":{"capabilities":{"read_only_contents":true}}}` works and persists.
 - The PR's repository, number and URL are injected into the prompt for PR triggers.
 - Automations are available on every plan; trial has no automation count limit. Min cron interval 60 minutes (irrelevant here).
 
