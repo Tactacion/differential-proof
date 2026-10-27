@@ -7,8 +7,8 @@ The goal is a working demo on Replicas (a cloud coding-agent platform): a requir
 ## Status
 
 - Done and tested: proof format + validator (`src/proof.js`), verdict logic (`src/verdict.js`), diff coverage signal (`src/coverage.js`, `touchedChangedCode`), 30 unit tests, CLI that checks out base and head as git worktrees, starts the app, replays the proof in Playwright and decides (`bin/diffproof.js`), toy demo repo with three scenarios.
-- M0–M4 done. M1: the three verdicts reproduced inside a Replicas workspace. M2: the "Differential Proof" automation + required check on the `Tactacion/diffproof-demo` repo blocks the vacuous PR (#2) and passes the honest one (#1). M3: a real Replicas agent fixed issue #3 and its PR (#4) came back PROVEN. M4: the demo shows `touchedChangedCode` yes/no/yes.
-- Not yet done: M5 independent verifier, M6 confidence signal. See `docs/PLAN.md`.
+- M0–M5 done. M1: the three verdicts reproduced inside a Replicas workspace. M2: the "Differential Proof" automation + required check on the `Tactacion/diffproof-demo` repo blocks the vacuous PR (#2) and passes the honest one (#1). M3: a real Replicas agent fixed issue #3 and its PR (#4) came back PROVEN (the user's screen capture of it is the remaining piece). M4: the demo shows `touchedChangedCode` yes/no/yes. M5: the "Independent Proof" automation writes its own proof from the issue/PR description; on PR #4 both checks came back PROVEN, and the ruleset requires both.
+- M6 (confidence signal): `bin/verdict-log.js <owner/repo>` collects every proof-check verdict with the PR's later fate as JSONL; the research answer needs data over time. See `docs/PLAN.md`.
 
 ## Commands
 
